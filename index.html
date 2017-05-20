@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Real Strategy</title>
+	<link rel="shortcut icon" href="favicon.png">
+	<link href="style.css" rel="stylesheet">
+	<script src="jquery.js"></script>
+	<script src="FileSaver.js"></script>
+	<script src="Player.js"></script>
+	<script src="Building.js"></script>
+	<script src="Army.js"></script>
+	<script src="Wall.js"></script>
+	<script src="Map.js"></script>
+	<script src="rs.js"></script>
+</head>
+<body>
+	<div id="params_form">
+		<div id="load_game_div">
+			<input type="file" id="saved_game_input" name="saved_game_input" accept=".rs">
+			<label for="saved_game_input"><img width="50" height="auto" src="save.png" title="Load Game" class="clickable"></label>
+		</div>
+		<center><p class="params_main_title">Welcome in Real Srategy !</p></center>
+		<form action="index.html" method="get" id="gameForm">
+			<table><tr class="empty_tr"></tr><tr class="empty_tr"></tr>
+				<tr><td colspan="4" class="params_title center">Map</td></tr><tr class="empty_tr"></tr><tr class="empty_tr"></tr>
+				<tr><td colspan="2">Height:</td><td class="right" colspan="2"><input type="number" name="width" id="params_width" class="center"></td></tr>
+				<tr><td colspan="2">Width:</td><td class="right" colspan="2"><input type="number" name="height" id="params_height" class="center"></td></tr>
+				<tr><td colspan="2">Gold Amount:</td><td class="right" colspan="2">
+				<select name="goldAmount" id="params_goldamount">
+					<option value="0">Low</option>
+					<option value="1">Medium</option>
+					<option value="2">High</option>
+				</select></td></tr>
+				<tr><td colspan="2">Water Amount:</td><td class="right" colspan="2">
+				<select name="waterAmount" id="params_wateramount">
+					<option value="0">Low</option>
+					<option value="1">Medium</option>
+					<option value="2">High</option>
+				</select></td></tr><tr class="empty_tr"></tr><tr class="empty_tr"></tr><tr class="empty_tr"></tr>
+				<tr><td colspan="4" class="params_title center">Players</td></tr><tr class="empty_tr"></tr><tr class="empty_tr"></tr>
+				<tr id="addParamsPlayerButton"><td colspan="4"><button onclick="addParamsPlayer()">+</button></td></tr>
+				<tr class="empty_tr"></tr><tr class="empty_tr"></tr>
+				<tr><td colspan="4" class="center"><input type="submit" value="Launch !"></td></tr>
+			</table>
+		</form>
+	</div>
+	<div id="map_generation"><div id="selecting_map">
+		<center>
+			<p class="selecting_map_main_title">
+			<img src="refresh.png" onclick="generateAnother()" title="Generate Another Map" class="clickable">
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map Generation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<img src="turn.png" onclick="closeApercu()" title="Play !" class="clickable">
+			</p>
+				<div id="loading">
+					<div class="container_loading">
+						<ul><li></li><li></li><li></li><li></li><li></li><li></li></ul>
+					</div>
+				</div>
+			<div id="apercu_map"></div>
+		</center>
+	</div></div>
+	<div id="modal">
+		<div id="fmnumber">
+			<tr><td><button id="xmbutton">X</button></td></tr>
+			<tr><td><input type="number" id="mnumber"></td></tr>
+			<tr><td><button id="mbutton">OK</button></td></tr>
+		</div>
+	</div>
+	<div id="save_game_modal">
+		<input type="text" id="save_game_filename"><br><br>
+		<button id="save_game_xbutton">X</button>
+		<button id="save_game_submit_button">Save</button>
+	</div>
+	<div id="modal_give_gold"></div>
+	<div id="modal_upgrades"><center>
+		<table>
+			<tr><td>Upgrade Name</td><td>Current Level</td><td>Current Value</td><td>Cost</td><td>Upgrade</td></tr>
+			<tr class="empty_tr"></tr>
+			<tr><td>Armies Move Points</td><td id="clevel_upgrade_move"></td><td id="upgrade_move_value"></td>
+				<td id="upgrade_move_cost"></td><td><button id="button_upgrade_move">&uarr;</button></td></tr>
+			<tr><td>Gold Points Efficiency</td><td id="clevel_upgrade_gold_efficiency"></td><td id="upgrade_gold_efficiency_value"></td>
+				<td id="upgrade_gold_efficiency_cost"></td><td><button id="button_upgrade_gold_efficiency">&uarr;</button></td></tr>
+			<tr class="empty_tr"><td colspan="5"></td></tr>
+		</table><button id="button_cancel_upgrades">X</button></center>
+	</div>
+	<div id="menu"><div id="inner_menu">
+		<div id="player_buttons">
+		<span id="pname"></span>
+		<span id="pinfos">
+			<img src="gold.png">
+			<span id="pgold"></span>
+			<span id="clickable_marker_menu">
+				<img src="soldier.png" onclick="buyArmy()" title="Buy Army (B)">
+				<img src="wall.png" onclick="buildWall()" title="Build A Wall (W)" id="build_wall_button">
+				<img src="ggold.png" onclick="giveGold()" title="Give Gold">
+				<img src="upgrade.png" onclick="upgrade()" title="Upgrades">
+				<img src="turn.png" onclick="nextTurn()" title="Next Turn (SPACE)">
+			</span>
+		</span></div>
+		<div id="map_buttons">
+		<img src="zoom-.png" onclick="zoomPlus()" title="Zoom -" class="clickable" id="zoom-button">
+		<img src="zoom+.png" onclick="unzoom()" title="Zoom +" class="clickable" id="zoomplusbutton">
+		<img id="minimap_button" src="mapzoom+.png" onclick="zoomMinimap()" title="Zoom Minimap + (M)" class="clickable">
+		<img id="minimap_top_button" src="maptop.png" onclick="topMinimap()" title="Minimap Top" class="clickable">
+		<img id="statistics_button" src="stats+.png" onclick="showStatistics()" title="Show Statistics (S)" class="clickable">
+		<img id="save_game_button" src="save.png" onclick="saveGame()" title="Save Game" class="clickable">
+	</div><div style="clear: both;"></div></div></div>
+	<div id="map"></div>
+	<div id="army_infos"></div>
+	<div id="statistics"></div>
+	<div id="minimap" class="minimap_bottom minimap_no_zoom"></div>
+</body>
+</html>
+<script type="text/javascript">
+	var entryBind;
+	var backspaceBind;
+	var unbindEverything = false;
+	launch();
+	$(function(){$('#gameForm').submit(function(){return doStuffBeforeSubmitGameForm();})});
+	function doStuffBeforeSubmitGameForm()
+	{
+		for (var i = 1; i <= nParamsPlayers; i++)
+		{
+			$('#params_p' + i).val(encodeURIComponent($('#params_p' + i).val()));
+		}
+		window.location.href = window.location.href.substring(0, window.location.href.indexOf('?') == -1 ? window.location.href.length : window.location.href.indexOf('?')) + '?' + decodeURIComponent($('#gameForm').serialize());
+		return false;
+	}
+	function generateAnother()
+	{
+		$('#apercu_map').hide(300, function(){$('#loading').show();});
+		setTimeout(function(){launch();}, 500);
+	}
+	function showStatistics()
+	{
+		if ($('#statistics').is(':visible'))
+		{
+			$('#statistics').hide();
+			$('#statistics_button').attr('src', 'stats+.png');
+			$('#statistics_button').attr('title', 'Show Statistics (S)');
+		}
+		else
+		{
+			$('#statistics').show();
+			$('#statistics_button').attr('src', 'stats-.png');
+			$('#statistics_button').attr('title', 'Hide Statistics (S)');
+		}	
+	}
+	function closeModal()
+	{
+		$('#mbutton').unbind('click');
+		$('#mxbutton').unbind('click');
+		entryBind = null;
+		backspaceBind = null;
+		//$('#menu').css('pointer-events', 'auto');
+		$('#modal').hide();	
+	}
+	function modal(callback, mval)
+	{
+		$('#mnumber').val(mval);
+		$('#modal').show();
+		$('#mnumber').focus();
+		//$('#menu').css('pointer-events', 'none');
+		var bind = function(cancel)
+		{
+			if (typeof cancel != 'undefined' && cancel === true)
+				callback(0);
+			else
+			{
+				var val = Math.round(parseInt($('#mnumber').val()));
+				if (val < 0 || val > mval)
+					return alert('Invalid value');
+				callback(val);
+			}
+			closeModal();
+		}
+		$('#mbutton').click(function(){bind();});
+		$('#xmbutton').click(function(){bind(true);});
+		entryBind = function(){bind();};
+		backspaceBind = function(){bind(true);}
+	}
+	function closeSaveGameModal()
+	{
+		$('#save_game_submit_button').unbind('click');
+		$('#save_game_xbutton').unbind('click');
+		$('#save_game_modal').hide();
+		unbindEverything = false;
+	}
+	function modalSaveGame()
+	{
+		$('#save_game_filename').val(new Date() + ' - ' + currentPlayer.name);
+		$('#save_game_modal').show();
+		$('#save_game_filename').focus();
+		unbindEverything = true;
+		var bind = function(cancel)
+		{
+			if (typeof cancel != 'undefined' && cancel === true)
+				return closeSaveGameModal();
+			if ($('#save_game_filename').val().length)
+			{
+				saveGame($('#save_game_filename').val());
+				closeSaveGameModal();
+			}
+		}
+		$('#save_game_submit_button').click(function(){bind();});
+		$('#save_game_xbutton').click(function(){bind(true);});
+	}
+	function zoomMinimap()
+	{
+		if (minimapZoom)
+		{
+			minimapZoom = false;
+			$('#minimap').removeClass('minimap_zoom');
+			$('#minimap').addClass('minimap_no_zoom');
+			$('#minimap_button').attr('src', 'mapzoom+.png');
+			$('#minimap_button').attr('title', 'Zoom Minimap + (M)');
+		}
+		else
+		{
+			minimapZoom = true;
+			$('#minimap').addClass('minimap_zoom');
+			$('#minimap').removeClass('minimap_no_zoom');
+			$('#minimap_button').attr('src', 'mapzoom-.png');
+			$('#minimap_button').attr('title', 'Zoom Minimap - (M)');
+		}
+	}
+	function topMinimap()
+	{
+		if ($('#minimap').hasClass('minimap_top'))
+		{
+			$('#minimap').removeClass('minimap_top')
+			$('#minimap').addClass('minimap_bottom')
+			$('#minimap_top_button').attr('src', 'maptop.png');
+			$('#minimap_top_button').attr('title', 'Minimap Top');
+		}
+		else
+		{
+			$('#minimap').removeClass('minimap_bottom')
+			$('#minimap').addClass('minimap_top')
+			$('#minimap_top_button').attr('src', 'mapbottom.png');
+			$('#minimap_top_button').attr('title', 'Minimap Bottom');
+		}
+	}
+	$(window).resize(function()
+	{
+		getMaxPrintSize();
+		printMap();
+	});
+	$(document).keydown(function(e)
+	{
+		if ($('#params_form').is(':visible') || unbindEverything === true)
+			return ;
+		switch(e.which)
+		{
+			/*case 8: // backspace
+				if (typeof backspaceBind == 'function')
+					backspaceBind();
+			break;*/
+			case 13: // enter
+				if (typeof entryBind == 'function')
+					entryBind();
+			break;
+			case 32: // space
+				nextTurn();
+			break;
+			case 66: // b
+				buyArmy();
+			break;
+			case 77: // m
+				zoomMinimap();
+			break;
+			case 83: // s
+				showStatistics();
+			break;
+			case 87: // w
+				buildWall();
+			break;
+			case 37: // left
+				if (cy > 0)
+				{
+					cy--;
+					printMapOnMove(cx, cy + 1, mx, my);
+				}
+			break;
+			case 38: // up
+				if (cx > 0)
+				{
+					cx--;
+					printMapOnMove(cx + 1, cy, mx, my);
+				}
+			break;
+			case 39: // right
+				if (cy < map.y - my)
+				{
+					cy++;
+					printMapOnMove(cx, cy - 1, mx, my);
+				}
+			break;
+			case 40: // down
+				if (cx < map.x - mx)
+				{
+					cx++;
+					printMapOnMove(cx - 1, cy, mx, my);
+				}
+			break;
+			default: return;
+		}
+		e.preventDefault();
+	});
+	var nParamsPlayers;
+	function addParamsPlayer(name, color, isBot)
+	{
+		var selected = ' selected="selected"';
+		nParamsPlayers++;
+		var html = '<tr><td class="right">' + nParamsPlayers + '.</td>' +
+					'<td><input type="text" name="p' + nParamsPlayers + '" id="params_p' + nParamsPlayers + '" value="' + (isValid(name) ? name : '') + '"></td>' +
+					'<td><select name="c' + nParamsPlayers + '" id="params_c' + nParamsPlayers + '">';
+		for (var i = 0; i < defaultColors.length; i++)
+			html += '<option value="' + defaultColors[i] + '"' +
+					(isValid(color) && color == defaultColors[i] ? selected : (i + 1 == nParamsPlayers ? selected : '')) +
+					'>' + capitalizeFirstLetter(defaultColors[i]) + '</option>';
+		html += '</select></td>' +
+					'<td><select name="b' + nParamsPlayers + '" id="params_b' + nParamsPlayers + '">' +
+						'<option value="0"' + (isValid(isBot) && isBot == 0 ? selected : (nParamsPlayers == 1 ? selected : '')) + '>Human</option>' +
+						'<option value="1"' + (isValid(isBot) && isBot == 1 ? selected : (nParamsPlayers == 1 ? '' : selected)) + '>Computer</option>' +
+					'</select></td>' +
+				'</tr>';
+		if (nParamsPlayers < defaultColors.length)
+			html += '<tr id="addParamsPlayerButton"><td colspan="4" class="center"><button onclick="addParamsPlayer()">+</button></td></tr>';
+		$('#addParamsPlayerButton').replaceWith(html);
+	}
+</script>
